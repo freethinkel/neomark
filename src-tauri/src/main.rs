@@ -5,8 +5,12 @@
 
 mod menu;
 use crate::menu::AddDefaultSubmenus;
+use cocoa::{
+    appkit::{NSWindow, NSWindowTitleVisibility},
+    base::{id, YES},
+};
 use std::env;
-use tauri::Menu;
+use tauri::{Manager, Menu};
 use tauri_plugin_fs_watch::Watcher;
 
 #[tauri::command]
@@ -18,6 +22,17 @@ fn main() {
     let ctx = tauri::generate_context!();
 
     tauri::Builder::default()
+        .setup(|app| {
+            let handle = app.handle();
+            handle.windows().iter().for_each(|window| {
+                let ns_window: id = window.1.ns_window().unwrap() as id;
+                unsafe {
+                    ns_window.setTitleVisibility_(NSWindowTitleVisibility::NSWindowTitleHidden);
+                    ns_window.setTitlebarAppearsTransparent_(YES);
+                }
+            });
+            Ok(())
+        })
         .invoke_handler(tauri::generate_handler![get_current_dir])
         .plugin(Watcher::default())
         .menu(

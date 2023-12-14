@@ -35,6 +35,7 @@ html {
 @media (prefers-color-scheme: dark) {
   :root {
     --color-border: rgba(255, 255, 255, 0.12);
+    color-scheme: dark;
   }
   body {
     background-color: #0d1117;

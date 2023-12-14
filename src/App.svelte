@@ -6,6 +6,7 @@
   import Preview from "./lib/Preview/View.svelte";
   import { watch } from "tauri-plugin-fs-watch-api";
   import PickFile from "./lib/PickFile.svelte";
+    import Titlebar from "./lib/Titlebar.svelte";
 
   let fileContent = "";
   let hasFile = false;
@@ -22,7 +23,10 @@
   };
 
   let unwatch = null;
+  let selectedPath: string | null = null
+  let title = ""
   const pickFile = async (path?: string) => {
+    selectedPath = path
     if (unwatch) {
       unwatch();
     }
@@ -33,7 +37,8 @@
     const content = await fs.readTextFile(path);
     fileContent = content;
     hasFile = true;
-    window.appWindow.setTitle(`neomark - ${path}`);
+    title = `neomark - ${path}`;
+    // window.appWindow.setTitle(`neomark - ${path}`);
   };
 
   onMount(async () => {
@@ -44,8 +49,26 @@
   });
 </script>
 
-{#if hasFile}
-  <Preview content={fileContent} />
-{:else}
-  <PickFile on:select={({ detail }) => pickFile(detail)} />
-{/if}
+<div class="wrapper">
+  <Titlebar>{title}</Titlebar>
+  <div class="body">
+    {#if hasFile}
+      <Preview content={fileContent} path={selectedPath} />
+    {:else}
+      <PickFile on:select={({ detail }) => pickFile(detail)} />
+    {/if}
+  </div>
+</div>
+
+<style>
+  .wrapper {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+  }
+  .body {
+    flex: 1;
+    min-height: 0;
+    overflow: auto;
+  }
+</style>
